@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "tab_category")
+@Table(name = "tab_product")
 public class Product {
 
     @Id
@@ -21,7 +21,7 @@ public class Product {
     private String imgUrl;
 
     @ManyToMany
-    @JoinTable(name = "tb_product_category",
+    @JoinTable(name = "tab_product_category",
                 joinColumns = @JoinColumn(name = "product_id"),
                 inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<Category> categories = new HashSet<>();
