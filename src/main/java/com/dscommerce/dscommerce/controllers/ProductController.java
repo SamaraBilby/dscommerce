@@ -46,4 +46,10 @@ public class ProductController {
         return ResponseEntity.ok(dto);
     }
 
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> Delete(@PathVariable Long id) {
+        _productService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
