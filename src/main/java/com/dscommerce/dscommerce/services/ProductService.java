@@ -3,11 +3,15 @@ package com.dscommerce.dscommerce.services;
 import com.dscommerce.dscommerce.dto.ProductDTO;
 import com.dscommerce.dscommerce.entities.Product;
 import com.dscommerce.dscommerce.repositories.ProductRepository;
+import com.dscommerce.dscommerce.services.exceptions.DataBaseException;
 import com.dscommerce.dscommerce.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -41,15 +45,28 @@ public class ProductService {
 
     @Transactional
     public  ProductDTO update(Long id, ProductDTO dto){
-        Product entity = _productRepository.getReferenceById(id);
-        copyDtoToEntity(dto,entity);
-        entity = _productRepository.save(entity);
-        return new ProductDTO(entity);
+        try{
+            Product entity = _productRepository.getReferenceById(id);
+            copyDtoToEntity(dto,entity);
+            entity = _productRepository.save(entity);
+            return new ProductDTO(entity);
+        }catch (EntityNotFoundException e){
+            throw new ResourceNotFoundException("Recurso não encontrado");
+        }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id){
-        _productRepository.deleteById(id);
+        if(!_productRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Recurso não encontrado");
+        }
+        try {
+            _productRepository.deleteById(id);
+        }
+        catch (DataIntegrityViolationException e){
+            throw new DataBaseException("Falha de integridade referencial");
+        }
+
     }
 
     private void copyDtoToEntity(ProductDTO dto, Product entity) {
