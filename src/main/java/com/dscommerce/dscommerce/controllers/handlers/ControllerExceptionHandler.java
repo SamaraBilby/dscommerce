@@ -3,10 +3,8 @@ package com.dscommerce.dscommerce.controllers.handlers;
 import com.dscommerce.dscommerce.dto.CustomError;
 import com.dscommerce.dscommerce.dto.ValidationError;
 import com.dscommerce.dscommerce.services.exceptions.DataBaseException;
-import com.dscommerce.dscommerce.services.exceptions.NotValidException;
 import com.dscommerce.dscommerce.services.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -19,24 +17,24 @@ import java.time.Instant;
 @ControllerAdvice
 public class ControllerExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<CustomError> resourceNotFound(ResourceNotFoundException e, HttpServletRequest resquest){
+    public ResponseEntity<CustomError> resourceNotFound(ResourceNotFoundException e, HttpServletRequest request){
         HttpStatus status = HttpStatus.NOT_FOUND;
-        CustomError err = new CustomError(Instant.now(), status.value(), e.getMessage(), resquest.getRequestURI());
+        CustomError err = new CustomError(Instant.now(), status.value(), e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
 
     @ExceptionHandler(DataBaseException.class)
-    public ResponseEntity<CustomError> dataBase(DataBaseException e, HttpServletRequest resquest){
+    public ResponseEntity<CustomError> dataBase(DataBaseException e, HttpServletRequest request){
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        CustomError err = new CustomError(Instant.now(), status.value(), e.getMessage(), resquest.getRequestURI());
+        CustomError err = new CustomError(Instant.now(), status.value(), e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<CustomError> methodArgumentNotValidation(MethodArgumentNotValidException e, HttpServletRequest resquest){
+    public ResponseEntity<CustomError> methodArgumentNotValidation(MethodArgumentNotValidException e, HttpServletRequest request){
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
-        ValidationError err = new ValidationError(Instant.now(), status.value(), "Dados inválidos", resquest.getRequestURI());
+        ValidationError err = new ValidationError(Instant.now(), status.value(), "Dados inválidos", request.getRequestURI());
 
         for(FieldError f: e.getBindingResult().getFieldErrors()){
             err.addError(f.getField(), f.getDefaultMessage());
